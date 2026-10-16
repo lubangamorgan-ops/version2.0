@@ -1,0 +1,17 @@
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="nav(active)" class="sidebar">
+  <div class="brand">
+    <div class="brand-mark">MF</div>
+    <div><div class="brand-name">MIMS</div><div class="brand-sub">Machakos F.A.</div></div>
+  </div>
+  <a class="nav-item" th:classappend="${active == 'lookup'} ? 'active' : ''" href="/farmer/dashboard">Price Lookup</a>
+  <a class="nav-item" th:classappend="${active == 'trends'} ? 'active' : ''" href="/farmer/trends">Market Trends</a>
+  <a class="nav-item" th:classappend="${active == 'alerts'} ? 'active' : ''" href="/farmer/alerts">My Alerts</a>
+  <a class="nav-item" th:classappend="${active == 'reports'} ? 'active' : ''" href="/reports">Price History</a>
+  <div class="sidebar-foot">
+    <div class="who" th:text="${name}">Farmer Name</div>
+    <div class="who-role">Registered farmer</div>
+    <form th:action="@{/logout}" method="post">
+      <button class="logout-btn" type="submit">Sign out</button>
+    </form>
+  </div>
+</div>

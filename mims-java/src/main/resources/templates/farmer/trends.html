@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Trends — MIMS</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="shell">
+  <div th:replace="~{fragments/farmer-nav :: nav('trends')}"></div>
+  <div class="main">
+    <div class="page-head">
+      <h2>Market trends</h2>
+      <p>Compare recent prices for a crop across markets to decide where to sell.</p>
+    </div>
+
+    <div class="card">
+      <form th:action="@{/farmer/trends}" method="get">
+        <label>Choose a crop</label>
+        <select name="cropId" onchange="this.form.submit()">
+          <option th:each="c : ${crops}" th:value="${c.id}"
+                  th:selected="${selectedCrop != null and c.id == selectedCrop.id}"
+                  th:text="${c.name}">Crop</option>
+        </select>
+      </form>
+
+      <div style="margin-top:22px;">
+        <div class="alert alert-info" th:if="${selectedCrop != null and #lists.isEmpty(rows)}"
+             th:text="'No price history yet for ' + ${selectedCrop.name} + '.'">no history</div>
+
+        <div class="bar-row" th:each="r : ${rows}">
+          <div class="bar-label" th:text="${r.market.name}">Market</div>
+          <div class="bar-track">
+            <div class="bar-fill" th:style="'width:' + ${(r.price.intValue() * 100) / maxPrice} + '%'"></div>
+          </div>
+          <div class="bar-val" th:text="'Ksh ' + ${#numbers.formatDecimal(r.price,0,'COMMA',2,'POINT')}">price</div>
+        </div>
+
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:8px;" th:if="${!#lists.isEmpty(rows)}"
+           th:text="'Most recent ' + ${#lists.size(rows)} + ' records for ' + ${selectedCrop.name} + ', across markets.'">note</p>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

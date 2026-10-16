@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Alerts — MIMS</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="shell">
+  <div th:replace="~{fragments/farmer-nav :: nav('alerts')}"></div>
+  <div class="main">
+    <div class="page-head">
+      <h2>My alerts</h2>
+      <p>Broadcasts dispatched by the association's staff — no missed radio timeslots.</p>
+    </div>
+
+    <div class="card">
+      <div class="alert alert-info" th:if="${#lists.isEmpty(broadcasts)}">No broadcasts received yet. Once staff dispatch today's board, alerts will appear here.</div>
+      <div th:each="b : ${broadcasts}" style="padding:14px 0;border-bottom:1px solid var(--line);">
+        <div style="display:flex;justify-content:space-between;">
+          <strong style="font-family:'Fraunces',serif;font-size:15px;color:var(--blue-900);">Price board update</strong>
+          <span class="mono" style="font-size:12px;color:var(--ink-soft);" th:text="${#temporals.format(b.sentAt, 'dd MMM, HH:mm')}">date</span>
+        </div>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin:6px 0 0;">
+          <span th:text="${b.recordCount} + ' price(s) posted and dispatched by ' + ${b.sentBy} + '.'">summary</span>
+          <span th:text="${b.summary}">details</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

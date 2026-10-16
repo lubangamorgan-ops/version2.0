@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overview — MIMS</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="shell">
+  <div th:replace="~{fragments/admin-nav :: nav('overview')}"></div>
+  <div class="main">
+    <div class="page-head">
+      <h2 th:text="'Good day, ' + ${#strings.arraySplit(name,' ')[0]} + '.'">Good day.</h2>
+      <p>Here's the state of the market board right now.</p>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card"><div class="n" th:text="${cropCount}">0</div><div class="l">Registered crops</div></div>
+      <div class="stat-card"><div class="n" th:text="${marketCount}">0</div><div class="l">Market locations</div></div>
+      <div class="stat-card"><div class="n" th:text="${farmerCount}">0</div><div class="l">Registered farmers</div></div>
+      <div class="stat-card"><div class="n" th:text="${todayCount}">0</div><div class="l">Prices posted today</div></div>
+    </div>
+
+    <div class="card">
+      <h3>Recent price activity</h3>
+      <div class="card-sub">Latest entries across all markets, most recent first.</div>
+      <table>
+        <thead><tr><th>Crop</th><th>Market</th><th>Price</th><th>Posted</th><th>Entered by</th></tr></thead>
+        <tbody>
+          <tr class="empty-row" th:if="${#lists.isEmpty(recent)}"><td colspan="5">No prices recorded yet. Go to Price Entry to post the first figure.</td></tr>
+          <tr th:each="p : ${recent}">
+            <td th:text="${p.crop.name}">Crop</td>
+            <td th:text="${p.market.name}">Market</td>
+            <td class="price-cell" th:text="'Ksh ' + ${#numbers.formatDecimal(p.price,0,'COMMA',2,'POINT')} + ' / ' + ${p.crop.unit}">price</td>
+            <td th:text="${#temporals.format(p.recordedAt, 'dd MMM, HH:mm')}">date</td>
+            <td th:text="${p.enteredBy}">staff</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>System checklist</h3>
+      <div class="card-sub">Reflects the functional requirements this project targets.</div>
+      <div class="checklist-item">✅ Structured, centralized database for crops, markets, farmers and prices</div>
+      <div class="checklist-item">✅ Duplicate and future-date validation on every price entry</div>
+      <div class="checklist-item">✅ Role-based views for administrators and farmers</div>
+      <div class="checklist-item">✅ Broadcast dispatch and historical, exportable reporting</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

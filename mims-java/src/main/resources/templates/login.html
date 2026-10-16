@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in — MIMS</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="brand">
+      <div class="brand-mark">MF</div>
+      <div><div class="brand-name">Sign in</div><div class="brand-sub">Machakos Farmers Association</div></div>
+    </div>
+
+    <div class="role-toggle">
+      <a class="role-btn" th:classappend="${role == 'admin'} ? 'active' : ''" href="/login?role=admin">Administrator</a>
+      <a class="role-btn" th:classappend="${role == 'farmer'} ? 'active' : ''" href="/login?role=farmer">Farmer</a>
+    </div>
+
+    <form th:if="${role == 'admin'}" th:action="@{/login/admin}" method="post">
+      <label>Full name</label>
+      <input type="text" name="name" placeholder="e.g. Wavinya Mutuku" required>
+      <label>Staff role</label>
+      <select name="staffRole">
+        <option>Market Reporting Officer</option>
+        <option>Field Agent</option>
+        <option>Association Administrator</option>
+      </select>
+      <button class="btn btn-primary auth-submit" type="submit">Continue</button>
+      <p class="auth-note">Administrators can register crops and markets, post validated prices, manage farmer records and dispatch broadcasts.</p>
+    </form>
+
+    <form th:if="${role != 'admin'}" th:action="@{/login/farmer}" method="post">
+      <label>Full name</label>
+      <input type="text" name="name" placeholder="e.g. Musyoka Kioko" required>
+      <label>Phone number</label>
+      <input type="tel" name="phone" placeholder="07xx xxx xxx">
+      <label>Nearest market</label>
+      <select name="marketId">
+        <option th:each="m : ${markets}" th:value="${m.id}" th:text="${m.name}">Market</option>
+      </select>
+      <button class="btn btn-primary auth-submit" type="submit">Continue</button>
+      <p class="auth-note">Farmers get on-demand access to verified prices, trend history, and broadcast alerts — no more missed timeslots.</p>
+    </form>
+
+    <a class="auth-back" href="/">&larr; Back to the board</a>
+  </div>
+</div>
+</body>
+</html>

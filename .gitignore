@@ -1,0 +1,21 @@
+# Java / Spring Boot
+mims-java/target/
+**/target/
+*.class
+*.log
+*.jar
+*.war
+*.ear
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Local DB / runtime data
+mims-java/data/
+data/
+
+# OS
+.DS_Store
+Thumbs.db

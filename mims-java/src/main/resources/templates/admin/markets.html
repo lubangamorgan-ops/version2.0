@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markets — MIMS</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="shell">
+  <div th:replace="~{fragments/admin-nav :: nav('markets')}"></div>
+  <div class="main">
+    <div class="page-head">
+      <h2>Market location entry</h2>
+      <p>Register the physical trading centers where prices are collected.</p>
+    </div>
+
+    <div class="card">
+      <h3>Add a market location</h3>
+      <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+      <form th:action="@{/admin/markets}" method="post" class="grid-3">
+        <div><label>Market name</label><input type="text" name="name" placeholder="e.g. Wamunyu Market" required></div>
+        <div><label>Location / sub-county</label><input type="text" name="location" placeholder="e.g. Mwala" required></div>
+        <div style="display:flex;align-items:flex-end;"><button class="btn btn-primary" style="width:100%;" type="submit">Register market</button></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3 th:text="'Registered markets (' + ${#lists.size(markets)} + ')'">Registered markets</h3>
+      <table>
+        <thead><tr><th>Market</th><th>Location</th><th></th></tr></thead>
+        <tbody>
+          <tr class="empty-row" th:if="${#lists.isEmpty(markets)}"><td colspan="3">No markets registered yet.</td></tr>
+          <tr th:each="m : ${markets}">
+            <td th:text="${m.name}">Market</td>
+            <td th:text="${m.location}">Location</td>
+            <td>
+              <form th:action="@{'/admin/markets/' + ${m.id} + '/delete'}" method="post">
+                <button class="small-btn danger" type="submit">Remove</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

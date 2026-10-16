@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports — MIMS</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="shell">
+  <div th:if="${role == 'admin'}" th:replace="~{fragments/admin-nav :: nav('reports')}"></div>
+  <div th:if="${role != 'admin'}" th:replace="~{fragments/farmer-nav :: nav('reports')}"></div>
+  <div class="main">
+    <div class="page-head">
+      <h2>Historical price reports</h2>
+      <p>Filter recorded prices and export a report for offline reference.</p>
+    </div>
+
+    <div class="card">
+      <form th:action="@{/reports}" method="get" class="grid-3">
+        <div><label>Crop</label>
+          <select name="cropId" onchange="this.form.submit()">
+            <option value="">All crops</option>
+            <option th:each="c : ${crops}" th:value="${c.id}" th:selected="${c.id == selectedCropId}" th:text="${c.name}">Crop</option>
+          </select>
+        </div>
+        <div><label>Market</label>
+          <select name="marketId" onchange="this.form.submit()">
+            <option value="">All markets</option>
+            <option th:each="m : ${markets}" th:value="${m.id}" th:selected="${m.id == selectedMarketId}" th:text="${m.name}">Market</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:10px;">
+          <button class="btn btn-ghost" style="width:100%;" type="submit">Apply filter</button>
+        </div>
+      </form>
+      <div class="form-actions">
+        <a class="small-btn" th:href="@{/reports/export.csv(cropId=${selectedCropId},marketId=${selectedMarketId})}">Export CSV</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Records</h3>
+      <table>
+        <thead><tr><th>Date</th><th>Crop</th><th>Market</th><th>Price</th><th>Entered by</th></tr></thead>
+        <tbody>
+          <tr class="empty-row" th:if="${#lists.isEmpty(rows)}"><td colspan="5">No records match this filter.</td></tr>
+          <tr th:each="p : ${rows}">
+            <td th:text="${#temporals.format(p.priceDate, 'dd MMM yyyy')}">date</td>
+            <td th:text="${p.crop.name}">Crop</td>
+            <td th:text="${p.market.name}">Market</td>
+            <td class="price-cell" th:text="'Ksh ' + ${#numbers.formatDecimal(p.price,0,'COMMA',2,'POINT')} + ' / ' + ${p.crop.unit}">price</td>
+            <td th:text="${p.enteredBy}">staff</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

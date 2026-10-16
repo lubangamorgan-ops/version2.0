@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmers — MIMS</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="shell">
+  <div th:replace="~{fragments/admin-nav :: nav('farmers')}"></div>
+  <div class="main">
+    <div class="page-head">
+      <h2>Farmer member records</h2>
+      <p>Registered farmers receive broadcast alerts and can look up verified prices.</p>
+    </div>
+
+    <div class="card">
+      <h3>Register a farmer</h3>
+      <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+      <form th:action="@{/admin/farmers}" method="post">
+        <div class="grid-3">
+          <div><label>Full name</label><input type="text" name="name" placeholder="e.g. Nzisa Mutua" required></div>
+          <div><label>Phone number</label><input type="text" name="phone" placeholder="07xx xxx xxx"></div>
+          <div><label>Nearest market</label>
+            <select name="marketId">
+              <option th:each="m : ${markets}" th:value="${m.id}" th:text="${m.name}">Market</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Register farmer</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3 th:text="'Registered farmers (' + ${#lists.size(farmers)} + ')'">Registered farmers</h3>
+      <table>
+        <thead><tr><th>Name</th><th>Phone</th><th>Market</th><th>Registered</th><th></th></tr></thead>
+        <tbody>
+          <tr class="empty-row" th:if="${#lists.isEmpty(farmers)}"><td colspan="5">No farmers registered yet.</td></tr>
+          <tr th:each="f : ${farmers}">
+            <td th:text="${f.name}">Name</td>
+            <td class="mono" th:text="${f.phone} ?: '—'">Phone</td>
+            <td th:text="${f.market != null ? f.market.name : '—'}">Market</td>
+            <td th:text="${#temporals.format(f.registeredAt, 'dd MMM yyyy')}">date</td>
+            <td>
+              <form th:action="@{'/admin/farmers/' + ${f.id} + '/delete'}" method="post">
+                <button class="small-btn danger" type="submit">Remove</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

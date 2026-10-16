@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Broadcast — MIMS</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="shell">
+  <div th:replace="~{fragments/admin-nav :: nav('broadcast')}"></div>
+  <div class="main">
+    <div class="page-head">
+      <h2>Broadcast dispatch</h2>
+      <p>Push today's validated prices to all registered farmers at once — replacing the old radio timeslot.</p>
+    </div>
+
+    <div class="card">
+      <h3>Dispatch today's board</h3>
+      <div class="card-sub" th:text="${#lists.size(todayPrices)} + ' price record(s) posted today · ' + ${farmerCount} + ' farmer(s) will receive this alert.'">summary</div>
+
+      <div class="alert alert-good" th:if="${success}" th:text="${success}"></div>
+
+      <div th:if="${!#lists.isEmpty(todayPrices)}">
+        <table>
+          <thead><tr><th>Crop</th><th>Market</th><th>Price</th></tr></thead>
+          <tbody>
+            <tr th:each="p : ${todayPrices}">
+              <td th:text="${p.crop.name}">Crop</td>
+              <td th:text="${p.market.name}">Market</td>
+              <td class="price-cell" th:text="'Ksh ' + ${#numbers.formatDecimal(p.price,0,'COMMA',2,'POINT')} + ' / ' + ${p.crop.unit}">price</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="form-actions">
+          <form th:action="@{/admin/broadcast}" method="post">
+            <button class="btn btn-primary" type="submit" th:text="'Dispatch to ' + ${farmerCount} + ' farmers'">Dispatch</button>
+          </form>
+        </div>
+      </div>
+      <div class="alert alert-info" th:if="${#lists.isEmpty(todayPrices)}">No prices posted today yet. Post at least one price before dispatching.</div>
+    </div>
+
+    <div class="card">
+      <h3>Dispatch log</h3>
+      <table>
+        <thead><tr><th>Sent</th><th>Records</th><th>Recipients</th><th>Sent by</th></tr></thead>
+        <tbody>
+          <tr class="empty-row" th:if="${#lists.isEmpty(broadcasts)}"><td colspan="4">No broadcasts sent yet.</td></tr>
+          <tr th:each="b : ${broadcasts}">
+            <td th:text="${#temporals.format(b.sentAt, 'dd MMM, HH:mm')}">date</td>
+            <td th:text="${b.recordCount} + ' prices'">records</td>
+            <td th:text="${b.recipientCount} + ' farmers'">recipients</td>
+            <td th:text="${b.sentBy}">staff</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Price Lookup — MIMS</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="shell">
+  <div th:replace="~{fragments/farmer-nav :: nav('lookup')}"></div>
+  <div class="main">
+    <div class="page-head">
+      <h2>Today's verified prices</h2>
+      <p>Straight from the association's board — the same figure every farmer sees.</p>
+    </div>
+
+    <div class="alert alert-info" th:if="${#lists.isEmpty(myMarketToday)}">No prices posted for your market today yet. Showing all markets below instead.</div>
+
+    <div class="card">
+      <h3 th:text="${!#lists.isEmpty(myMarketToday)} ? 'Your market — ' + ${myMarket.name} : 'All markets today'">Market</h3>
+      <table>
+        <thead><tr><th>Crop</th><th>Market</th><th>Price</th><th>Posted</th></tr></thead>
+        <tbody>
+          <tr class="empty-row" th:if="${#lists.isEmpty(myMarketToday) and #lists.isEmpty(allToday)}"><td colspan="4">No prices posted anywhere yet today. Check back shortly.</td></tr>
+          <tr th:each="p : ${!#lists.isEmpty(myMarketToday) ? myMarketToday : allToday}">
+            <td th:text="${p.crop.name}">Crop</td>
+            <td th:text="${p.market.name}">Market</td>
+            <td class="price-cell" th:text="'Ksh ' + ${#numbers.formatDecimal(p.price,0,'COMMA',2,'POINT')} + ' / ' + ${p.crop.unit}">price</td>
+            <td th:text="${#temporals.format(p.recordedAt, 'dd MMM, HH:mm')}">date</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Search all crops &amp; markets</h3>
+      <form th:action="@{/farmer/lookup}" method="get" class="grid-2">
+        <div><label>Crop</label>
+          <select name="cropId">
+            <option value="">All crops</option>
+            <option th:each="c : ${crops}" th:value="${c.id}" th:text="${c.name}">Crop</option>
+          </select>
+        </div>
+        <div><label>Market</label>
+          <select name="marketId">
+            <option value="">All markets</option>
+            <option th:each="m : ${markets}" th:value="${m.id}" th:text="${m.name}">Market</option>
+          </select>
+        </div>
+        <div style="grid-column: span 2; margin-top:6px;">
+          <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>

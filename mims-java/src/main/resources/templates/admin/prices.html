@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Price Entry — MIMS</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="shell">
+  <div th:replace="~{fragments/admin-nav :: nav('prices')}"></div>
+  <div class="main">
+    <div class="page-head">
+      <h2>Daily price entry</h2>
+      <p>Every entry is checked for duplicate crop/market/date records and future-dated timestamps before it is stored.</p>
+    </div>
+
+    <div class="card">
+      <h3>Post a price</h3>
+
+      <div class="alert alert-good" th:if="${success}" th:text="${success}"></div>
+      <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+      <div class="alert alert-error" th:if="${duplicateError}">
+        <span th:text="${duplicateError}">duplicate message</span><br>
+        <form th:action="@{/admin/prices}" method="post" style="margin-top:8px;">
+          <input type="hidden" name="cropId" th:value="${dupCropId}">
+          <input type="hidden" name="marketId" th:value="${dupMarketId}">
+          <input type="hidden" name="price" th:value="${dupPrice}">
+          <input type="hidden" name="priceDate" th:value="${dupDate}">
+          <input type="hidden" name="replaceExisting" value="true">
+          <button class="small-btn" type="submit" th:text="'Replace the existing record with Ksh ' + ${dupPrice} + ' instead'">Replace existing</button>
+        </form>
+      </div>
+
+      <form th:action="@{/admin/prices}" method="post">
+        <div class="grid-3">
+          <div><label>Crop</label>
+            <select name="cropId" required>
+              <option th:each="c : ${crops}" th:value="${c.id}" th:text="${c.name}">Crop</option>
+            </select>
+          </div>
+          <div><label>Market</label>
+            <select name="marketId" required>
+              <option th:each="m : ${markets}" th:value="${m.id}" th:text="${m.name}">Market</option>
+            </select>
+          </div>
+          <div><label>Price (Ksh)</label><input type="number" name="price" min="0" step="0.01" placeholder="e.g. 120" required></div>
+        </div>
+        <div class="grid-3" style="margin-top:14px;">
+          <div><label>Date</label><input type="date" name="priceDate" th:value="${today}" required></div>
+          <div style="grid-column: span 2; display:flex;align-items:flex-end;">
+            <button class="btn btn-primary" style="width:100%;" type="submit">Validate &amp; post price</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>Most recent postings</h3>
+      <table>
+        <thead><tr><th>Crop</th><th>Market</th><th>Price</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr class="empty-row" th:if="${#lists.isEmpty(recent)}"><td colspan="5">No prices posted yet.</td></tr>
+          <tr th:each="p : ${recent}">
+            <td th:text="${p.crop.name}">Crop</td>
+            <td th:text="${p.market.name}">Market</td>
+            <td class="price-cell" th:text="'Ksh ' + ${#numbers.formatDecimal(p.price,0,'COMMA',2,'POINT')} + ' / ' + ${p.crop.unit}">price</td>
+            <td th:text="${#temporals.format(p.priceDate, 'dd MMM yyyy')}">date</td>
+            <td>
+              <span th:if="${p.revised}" class="tag tag-warn">Revised (duplicate replaced)</span>
+              <span th:unless="${p.revised}" class="tag tag-good">Validated</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

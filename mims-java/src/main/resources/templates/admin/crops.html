@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crops — MIMS</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="shell">
+  <div th:replace="~{fragments/admin-nav :: nav('crops')}"></div>
+  <div class="main">
+    <div class="page-head">
+      <h2>Crop &amp; category registration</h2>
+      <p>Register the commodities this association tracks, with their reporting unit.</p>
+    </div>
+
+    <div class="card">
+      <h3>Add a crop category</h3>
+      <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+      <form th:action="@{/admin/crops}" method="post" class="grid-3">
+        <div><label>Crop name</label><input type="text" name="name" placeholder="e.g. Sorghum" required></div>
+        <div><label>Reporting unit</label><input type="text" name="unit" placeholder="e.g. kg, 90kg bag" required></div>
+        <div style="display:flex;align-items:flex-end;"><button class="btn btn-primary" style="width:100%;" type="submit">Register crop</button></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3 th:text="'Registered crops (' + ${#lists.size(crops)} + ')'">Registered crops</h3>
+      <table>
+        <thead><tr><th>Crop</th><th>Unit</th><th></th></tr></thead>
+        <tbody>
+          <tr class="empty-row" th:if="${#lists.isEmpty(crops)}"><td colspan="3">No crops registered yet.</td></tr>
+          <tr th:each="c : ${crops}">
+            <td th:text="${c.name}">Crop</td>
+            <td class="mono" th:text="${c.unit}">unit</td>
+            <td>
+              <form th:action="@{'/admin/crops/' + ${c.id} + '/delete'}" method="post">
+                <button class="small-btn danger" type="submit">Remove</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>
