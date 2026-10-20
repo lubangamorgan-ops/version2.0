@@ -14,12 +14,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -32,6 +38,8 @@ public class AccountService {
     private static final String ADMIN_ROLE = "ADMIN";
     private static final int MIN_PASSWORD_LENGTH = 8;
     private static final int RESET_TOKEN_MINUTES = 30;
+    private static final int MAX_PROFILE_IMAGE_BYTES = 1_048_576;
+    private static final long MAX_PROFILE_IMAGE_PIXELS = 12_000_000;
     private static final Pattern USERNAME_PATTERN = Pattern.compile("[a-zA-Z0-9._-]{3,32}");
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
@@ -87,6 +95,85 @@ public class AccountService {
         farmer.setAccount(account);
         return farmerRepository.save(farmer);
     }
+
+    @Transactional
+    public Farmer updateFarmerProfile(Farmer farmer, String username, String email, String phone, Market market) {
+        return updateFarmerProfile(farmer, username, email, phone, market, null);
+    }
+
+    @Transactional
+    public Farmer updateFarmerProfile(Farmer farmer, String username, String email, String phone, Market market,
+                                      byte[] profileImage) {
+        if (farmer == null || farmer.getAccount() == null
+                || !FARMER_ROLE.equals(farmer.getAccount().getRole())) {
+            throw new IllegalArgumentException("Farmer account not found.");
+        }
+        String normalizedUsername = normalizeUsername(username);
+        String normalizedEmail = normalizeEmail(email);
+        ValidatedProfileImage validatedImage = profileImage == null ? null : validateProfileImage(profileImage);
+        if (market == null) {
+            throw new IllegalArgumentException("Please select a market.");
+        }
+
+        Account account = farmer.getAccount();
+        if (accountRepository.existsByUsernameIgnoreCaseAndIdNot(normalizedUsername, account.getId())) {
+            throw new IllegalArgumentException("That username is already in use.");
+        }
+        if (accountRepository.existsByEmailIgnoreCaseAndIdNot(normalizedEmail, account.getId())) {
+            throw new IllegalArgumentException("An account with that email already exists.");
+        }
+
+        account.setUsername(normalizedUsername);
+        account.setEmail(normalizedEmail);
+        farmer.setName(normalizedUsername);
+        farmer.setPhone(phone == null || phone.isBlank() ? null : phone.trim());
+        farmer.setMarket(market);
+        if (validatedImage != null) {
+            farmer.setProfileImage(validatedImage.data());
+            farmer.setProfileImageContentType(validatedImage.contentType());
+        }
+        accountRepository.save(account);
+        return farmerRepository.save(farmer);
+    }
+
+    private ValidatedProfileImage validateProfileImage(byte[] imageData) {
+        if (imageData.length == 0 || imageData.length > MAX_PROFILE_IMAGE_BYTES) {
+            throw new IllegalArgumentException("Choose an image smaller than 1 MB.");
+        }
+
+        try (ImageInputStream imageInput = ImageIO.createImageInputStream(new ByteArrayInputStream(imageData))) {
+            if (imageInput == null) {
+                throw new IllegalArgumentException("Choose a valid JPEG, PNG, or GIF image.");
+            }
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(imageInput);
+            if (!readers.hasNext()) {
+                throw new IllegalArgumentException("Choose a valid JPEG, PNG, or GIF image.");
+            }
+
+            ImageReader reader = readers.next();
+            try {
+                reader.setInput(imageInput, true, true);
+                String format = reader.getFormatName().toLowerCase(Locale.ROOT);
+                String contentType = switch (format) {
+                    case "jpg", "jpeg" -> "image/jpeg";
+                    case "png" -> "image/png";
+                    case "gif" -> "image/gif";
+                    default -> throw new IllegalArgumentException("Choose a JPEG, PNG, or GIF image.");
+                };
+                long pixels = (long) reader.getWidth(0) * reader.getHeight(0);
+                if (pixels <= 0 || pixels > MAX_PROFILE_IMAGE_PIXELS || reader.read(0) == null) {
+                    throw new IllegalArgumentException("The image is invalid or too large.");
+                }
+                return new ValidatedProfileImage(imageData, contentType);
+            } finally {
+                reader.dispose();
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("The image could not be read. Choose a valid JPEG, PNG, or GIF.", e);
+        }
+    }
+
+    private record ValidatedProfileImage(byte[] data, String contentType) {}
 
     @Transactional(readOnly = true)
     public Optional<Account> authenticate(String username, String password, String requiredRole) {

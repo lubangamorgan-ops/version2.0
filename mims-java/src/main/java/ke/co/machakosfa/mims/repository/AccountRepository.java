@@ -13,4 +13,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
             String resetTokenHash, LocalDateTime now);
     boolean existsByUsernameIgnoreCase(String username);
     boolean existsByEmailIgnoreCase(String email);
+    boolean existsByUsernameIgnoreCaseAndIdNot(String username, Long id);
+    boolean existsByEmailIgnoreCaseAndIdNot(String email, Long id);
 }

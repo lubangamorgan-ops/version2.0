@@ -8,10 +8,42 @@
   <a class="nav-item" th:classappend="${active == 'alerts'} ? 'active' : ''" href="/farmer/alerts">My Alerts</a>
   <a class="nav-item" th:classappend="${active == 'reports'} ? 'active' : ''" href="/reports">Price History</a>
   <div class="sidebar-foot">
-    <div class="who" th:text="${name}">Farmer Name</div>
+    <div class="who"><a class="profile-popup-trigger" href="/farmer/profile" aria-haspopup="dialog"
+                        aria-controls="farmer-profile-dialog" th:text="${name}">Farmer Name</a></div>
     <div class="who-role">Registered farmer</div>
     <form th:action="@{/logout}" method="post">
       <button class="logout-btn" type="submit">Sign out</button>
     </form>
   </div>
+  <dialog class="profile-dialog" id="farmer-profile-dialog" aria-labelledby="farmer-profile-title">
+    <button class="profile-dialog-close" type="button" aria-label="Close profile">&times;</button>
+    <div class="profile-dialog-content" aria-live="polite">Loading profile…</div>
+  </dialog>
+  <script>
+    const profileTrigger = document.querySelector(".profile-popup-trigger");
+    const profileDialog = document.getElementById("farmer-profile-dialog");
+    const profileContent = profileDialog.querySelector(".profile-dialog-content");
+    profileTrigger.addEventListener("click", async (event) => {
+      event.preventDefault();
+      profileDialog.showModal();
+      profileContent.textContent = "Loading profile…";
+      try {
+        const response = await fetch("/farmer/profile/summary", {
+          headers: { "X-Requested-With": "XMLHttpRequest" }
+        });
+        if (!response.ok) throw new Error("Profile could not be loaded.");
+        const html = await response.text();
+        const documentFragment = new DOMParser().parseFromString(html, "text/html");
+        const summary = documentFragment.querySelector("[data-profile-summary]");
+        if (!summary) throw new Error("Profile could not be loaded.");
+        profileContent.replaceChildren(summary);
+      } catch (error) {
+        profileContent.textContent = error.message;
+      }
+    });
+    profileDialog.querySelector(".profile-dialog-close").addEventListener("click", () => profileDialog.close());
+    profileDialog.addEventListener("click", (event) => {
+      if (event.target === profileDialog) profileDialog.close();
+    });
+  </script>
 </div>

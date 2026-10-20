@@ -16,6 +16,13 @@ public class Farmer {
 
     private String phone;
 
+    @Lob
+    @Column(name = "profile_image")
+    private byte[] profileImage;
+
+    @Column(name = "profile_image_content_type", length = 32)
+    private String profileImageContentType;
+
     @ManyToOne
     @JoinColumn(name = "market_id")
     private Market market;
@@ -41,6 +48,12 @@ public class Farmer {
     public void setName(String name) { this.name = name; }
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
+    public byte[] getProfileImage() { return profileImage; }
+    public void setProfileImage(byte[] profileImage) { this.profileImage = profileImage; }
+    public String getProfileImageContentType() { return profileImageContentType; }
+    public void setProfileImageContentType(String profileImageContentType) {
+        this.profileImageContentType = profileImageContentType;
+    }
     public Market getMarket() { return market; }
     public void setMarket(Market market) { this.market = market; }
     public Account getAccount() { return account; }

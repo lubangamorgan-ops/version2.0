@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My account — MIMS</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="shell">
+  <div th:replace="~{fragments/farmer-nav :: nav('profile')}"></div>
+  <div class="main">
+    <div class="page-head">
+      <h2>My account</h2>
+      <p>View and update your username, phone number, email, and profile picture.</p>
+    </div>
+
+    <div class="card">
+      <div class="alert alert-good" th:if="${success}" th:text="${success}"></div>
+      <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+      <form th:action="@{/farmer/profile}" method="post" enctype="multipart/form-data">
+        <div class="profile-photo-section">
+          <div class="profile-photo-frame">
+            <img class="profile-photo" th:if="${hasProfilePhoto}" src="/farmer/profile/photo" alt="Your profile picture">
+            <span class="profile-photo-placeholder" th:unless="${hasProfilePhoto}" th:text="${initials}">F</span>
+          </div>
+          <div>
+            <label class="profile-photo-label" for="profile-photo">Profile picture</label>
+            <input class="profile-photo-input" id="profile-photo" type="file" name="profilePhoto"
+                   accept="image/jpeg,image/png,image/gif">
+            <label class="small-btn profile-photo-button" for="profile-photo">Choose picture</label>
+            <p class="profile-photo-help">JPEG, PNG, or GIF; maximum size 1 MB.</p>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <label for="username">Username</label>
+            <input id="username" type="text" name="username" minlength="3" maxlength="32"
+                   pattern="[-A-Za-z0-9._]{3,32}" autocomplete="username" th:value="${username}" required>
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" type="email" name="email" maxlength="254" autocomplete="email"
+                   th:value="${email}" required>
+          </div>
+          <div>
+            <label for="phone">Phone number</label>
+            <input id="phone" type="tel" name="phone" autocomplete="tel" th:value="${phone}">
+          </div>
+          <div>
+            <label for="market">Nearest market</label>
+            <select id="market" name="marketId" required>
+              <option th:each="m : ${markets}" th:value="${m.id}" th:selected="${m.id == selectedMarketId}"
+                      th:text="${m.name}">Market</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save changes</button>
+          <a class="small-btn" href="/farmer/dashboard">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  const photoInput = document.getElementById("profile-photo");
+  photoInput.addEventListener("change", () => {
+    const file = photoInput.files[0];
+    if (!file) return;
+    const preview = document.querySelector(".profile-photo-frame");
+    const image = document.createElement("img");
+    image.className = "profile-photo";
+    image.alt = "Selected profile picture preview";
+    image.src = URL.createObjectURL(file);
+    image.onload = () => URL.revokeObjectURL(image.src);
+    preview.replaceChildren(image);
+  });
+</script>
+</body>
+</html>

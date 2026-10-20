@@ -1,0 +1,15 @@
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="content" data-profile-summary>
+  <div class="profile-summary">
+    <h2 id="farmer-profile-title">My profile</h2>
+    <div class="profile-photo-frame profile-photo-frame-popup">
+      <img class="profile-photo" th:if="${hasProfilePhoto}" src="/farmer/profile/photo" alt="Your profile picture">
+      <span class="profile-photo-placeholder" th:unless="${hasProfilePhoto}" th:text="${initials}">F</span>
+    </div>
+    <dl class="profile-summary-details">
+      <div><dt>Username</dt><dd th:text="${farmer.account.username}">username</dd></div>
+      <div><dt>Phone number</dt><dd th:text="${#strings.isEmpty(farmer.phone) ? 'Not provided' : farmer.phone}">phone</dd></div>
+      <div><dt>Email</dt><dd th:text="${farmer.account.email}">email</dd></div>
+    </dl>
+    <a class="btn btn-primary profile-edit-link" href="/farmer/profile">Edit details</a>
+  </div>
+</div>

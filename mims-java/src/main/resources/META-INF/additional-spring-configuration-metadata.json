@@ -1,0 +1,29 @@
+{
+  "properties": [
+    {
+      "name": "mims.mail.from",
+      "type": "java.lang.String",
+      "description": "Email address used as the sender for password recovery messages."
+    },
+    {
+      "name": "mims.public-base-url",
+      "type": "java.lang.String",
+      "description": "Public base URL used when generating password recovery links."
+    },
+    {
+      "name": "mims.admin.username",
+      "type": "java.lang.String",
+      "description": "Username for the initial administrator account."
+    },
+    {
+      "name": "mims.admin.email",
+      "type": "java.lang.String",
+      "description": "Email address for the initial administrator account."
+    },
+    {
+      "name": "mims.admin.password",
+      "type": "java.lang.String",
+      "description": "Password for the initial administrator account."
+    }
+  ]
+}

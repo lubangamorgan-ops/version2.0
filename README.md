@@ -6,7 +6,7 @@ The application supports crop and market registration, price entry with duplicat
 
 ## Requirements
 
-- Java 17 or newer
+- Java 25 LTS or newer
 - Maven 3.9 or newer
 - Internet access for the first build so Maven can download dependencies
 
