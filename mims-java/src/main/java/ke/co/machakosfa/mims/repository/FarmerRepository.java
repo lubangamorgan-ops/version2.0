@@ -6,5 +6,6 @@ import java.util.Optional;
 
 public interface FarmerRepository extends JpaRepository<Farmer, Long> {
     Optional<Farmer> findByNameIgnoreCase(String name);
+    Optional<Farmer> findByAccount_Id(Long accountId);
     boolean existsByNameIgnoreCase(String name);
 }

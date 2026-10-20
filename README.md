@@ -29,6 +29,26 @@ While the application is running, the H2 console is available at [http://localho
 
 To switch to MySQL, uncomment the MySQL dependency in `mims-java/pom.xml`, then update the database settings in `mims-java/src/main/resources/application.properties`. Configure credentials outside source control before using the application with a non-local database.
 
+## Accounts and password recovery
+
+Farmers can create accounts with a username, email, password, phone number, and nearest market. Passwords are stored as BCrypt hashes. Administrator signup is not public; provision the first administrator by setting these environment variables before the first application start:
+
+- `MIMS_ADMIN_USERNAME`
+- `MIMS_ADMIN_EMAIL`
+- `MIMS_ADMIN_PASSWORD` (at least 12 characters)
+
+The administrator account is created only if the configured username/email do not already exist. Changing the environment password later does not overwrite an existing account.
+
+Password recovery sends a single-use link that expires after 30 minutes. Configure SMTP outside source control before enabling email delivery:
+
+- `SMTP_HOST`, `SMTP_PORT` (defaults to `587`)
+- `SMTP_USERNAME`, `SMTP_PASSWORD`
+- `SMTP_AUTH` and `SMTP_STARTTLS` (default to `true`)
+- `MIMS_MAIL_FROM`
+- `MIMS_PUBLIC_BASE_URL` (defaults to `http://localhost:8080`; set this to the public HTTPS app URL in deployment)
+
+If SMTP is not configured, the recovery form reports that email delivery is unavailable.
+
 ## Using the application
 
 1. On the landing page, choose **Administrator sign in** to manage crops, markets, prices, farmers, and broadcasts.

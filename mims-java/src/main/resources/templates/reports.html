@@ -7,8 +7,12 @@
 </head>
 <body>
 <div class="shell">
-  <div th:if="${role == 'admin'}" th:replace="~{fragments/admin-nav :: nav('reports')}"></div>
-  <div th:if="${role != 'admin'}" th:replace="~{fragments/farmer-nav :: nav('reports')}"></div>
+  <th:block th:if="${role == 'admin'}">
+    <div th:replace="~{fragments/admin-nav :: nav('reports')}"></div>
+  </th:block>
+  <th:block th:if="${role != 'admin'}">
+    <div th:replace="~{fragments/farmer-nav :: nav('reports')}"></div>
+  </th:block>
   <div class="main">
     <div class="page-head">
       <h2>Historical price reports</h2>

@@ -2,6 +2,8 @@ package ke.co.machakosfa.mims.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "broadcasts")
@@ -26,6 +28,15 @@ public class Broadcast {
     @Column(length = 1000)
     private String summary;
 
+    @ManyToMany
+    @JoinTable(
+            name = "broadcast_price_records",
+            joinColumns = @JoinColumn(name = "broadcast_id"),
+            inverseJoinColumns = @JoinColumn(name = "price_record_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"broadcast_id", "price_record_id"})
+    )
+    private List<PriceRecord> priceRecords = new ArrayList<>();
+
     public Broadcast() {}
 
     public Long getId() { return id; }
@@ -40,4 +51,8 @@ public class Broadcast {
     public void setRecipientCount(int recipientCount) { this.recipientCount = recipientCount; }
     public String getSummary() { return summary; }
     public void setSummary(String summary) { this.summary = summary; }
+    public List<PriceRecord> getPriceRecords() { return priceRecords; }
+    public void setPriceRecords(List<PriceRecord> priceRecords) {
+        this.priceRecords = new ArrayList<>(priceRecords);
+    }
 }

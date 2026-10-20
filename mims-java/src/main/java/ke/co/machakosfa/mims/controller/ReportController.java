@@ -11,12 +11,14 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.PrintWriter;
 import java.util.List;
 
 @Controller
+@RequestMapping("/reports")
 public class ReportController {
 
     private final CropService cropService;
@@ -29,7 +31,7 @@ public class ReportController {
         this.priceService = priceService;
     }
 
-    @GetMapping("/reports")
+    @GetMapping
     public String reports(@RequestParam(required = false) Long cropId,
                            @RequestParam(required = false) Long marketId,
                            Model model, HttpSession session) {
@@ -47,7 +49,7 @@ public class ReportController {
         return "reports";
     }
 
-    @GetMapping("/reports/export.csv")
+    @GetMapping("/export.csv")
     public void exportCsv(@RequestParam(required = false) Long cropId,
                            @RequestParam(required = false) Long marketId,
                            HttpServletResponse response, HttpSession session) throws Exception {

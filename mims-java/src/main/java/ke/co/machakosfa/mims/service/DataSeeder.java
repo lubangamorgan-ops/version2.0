@@ -4,6 +4,7 @@ import ke.co.machakosfa.mims.model.Crop;
 import ke.co.machakosfa.mims.model.Market;
 import ke.co.machakosfa.mims.repository.CropRepository;
 import ke.co.machakosfa.mims.repository.MarketRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -20,16 +21,31 @@ public class DataSeeder implements CommandLineRunner {
 
     private final CropRepository cropRepository;
     private final MarketRepository marketRepository;
+    private final AccountService accountService;
+    private final String adminUsername;
+    private final String adminEmail;
+    private final String adminPassword;
 
-    public DataSeeder(CropRepository cropRepository, MarketRepository marketRepository) {
+    public DataSeeder(
+            CropRepository cropRepository,
+            MarketRepository marketRepository,
+            AccountService accountService,
+            @Value("${mims.admin.username:}") String adminUsername,
+            @Value("${mims.admin.email:}") String adminEmail,
+            @Value("${mims.admin.password:}") String adminPassword) {
         this.cropRepository = cropRepository;
         this.marketRepository = marketRepository;
+        this.accountService = accountService;
+        this.adminUsername = adminUsername;
+        this.adminEmail = adminEmail;
+        this.adminPassword = adminPassword;
     }
 
     @Override
     public void run(String... args) {
         seedCrops();
         seedMarkets();
+        accountService.bootstrapAdministrator(adminUsername, adminEmail, adminPassword);
     }
 
     private void seedCrops() {

@@ -26,6 +26,7 @@ public class BroadcastService {
         broadcast.setSentBy(sentBy);
         broadcast.setRecordCount(todaysRecords.size());
         broadcast.setRecipientCount(recipientCount);
+        broadcast.setPriceRecords(todaysRecords);
         broadcast.setSummary(todaysRecords.stream()
                 .map(r -> r.getCrop().getName() + " at " + r.getMarket().getName() + ": Ksh " + r.getPrice())
                 .collect(Collectors.joining(" | ")));

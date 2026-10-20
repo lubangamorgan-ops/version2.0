@@ -20,6 +20,10 @@ public class Farmer {
     @JoinColumn(name = "market_id")
     private Market market;
 
+    @OneToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "account_id", unique = true)
+    private Account account;
+
     @Column(nullable = false)
     private LocalDateTime registeredAt = LocalDateTime.now();
 
@@ -39,6 +43,8 @@ public class Farmer {
     public void setPhone(String phone) { this.phone = phone; }
     public Market getMarket() { return market; }
     public void setMarket(Market market) { this.market = market; }
+    public Account getAccount() { return account; }
+    public void setAccount(Account account) { this.account = account; }
     public LocalDateTime getRegisteredAt() { return registeredAt; }
     public void setRegisteredAt(LocalDateTime registeredAt) { this.registeredAt = registeredAt; }
 }

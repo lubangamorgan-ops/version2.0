@@ -31,6 +31,11 @@ public class FarmerService {
         return farmerRepository.findByNameIgnoreCase(name);
     }
 
+    public Farmer findByAccountId(Long accountId) {
+        return farmerRepository.findByAccount_Id(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("Farmer account is not linked to a farmer record."));
+    }
+
     public Farmer register(String name, String phone, Market market) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Farmer name is required.");

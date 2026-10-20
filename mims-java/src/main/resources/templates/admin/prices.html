@@ -47,7 +47,7 @@
           <div><label>Price (Ksh)</label><input type="number" name="price" min="0" step="0.01" placeholder="e.g. 120" required></div>
         </div>
         <div class="grid-3" style="margin-top:14px;">
-          <div><label>Date</label><input type="date" name="priceDate" th:value="${today}" required></div>
+          <div><label for="price-date">Date</label><input id="price-date" class="date-picker" type="date" name="priceDate" th:value="${today}" required></div>
           <div style="grid-column: span 2; display:flex;align-items:flex-end;">
             <button class="btn btn-primary" style="width:100%;" type="submit">Validate &amp; post price</button>
           </div>

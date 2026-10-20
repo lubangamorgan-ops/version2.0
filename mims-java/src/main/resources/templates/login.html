@@ -14,39 +14,57 @@
       <div><div class="brand-name">Sign in</div><div class="brand-sub">Machakos Farmers Association</div></div>
     </div>
 
+    <p class="form-message form-error" th:if="${error}" th:text="${error}"></p>
+    <p class="form-message form-success" th:if="${success}" th:text="${success}"></p>
+
     <div class="role-toggle">
       <a class="role-btn" th:classappend="${role == 'admin'} ? 'active' : ''" href="/login?role=admin">Administrator</a>
       <a class="role-btn" th:classappend="${role == 'farmer'} ? 'active' : ''" href="/login?role=farmer">Farmer</a>
     </div>
 
     <form th:if="${role == 'admin'}" th:action="@{/login/admin}" method="post">
-      <label>Full name</label>
-      <input type="text" name="name" placeholder="e.g. Wavinya Mutuku" required>
-      <label>Staff role</label>
-      <select name="staffRole">
-        <option>Market Reporting Officer</option>
-        <option>Field Agent</option>
-        <option>Association Administrator</option>
-      </select>
-      <button class="btn btn-primary auth-submit" type="submit">Continue</button>
-      <p class="auth-note">Administrators can register crops and markets, post validated prices, manage farmer records and dispatch broadcasts.</p>
+      <label for="admin-username">Username</label>
+      <input id="admin-username" type="text" name="username" autocomplete="username" required>
+      <label for="admin-password">Password</label>
+      <div class="password-field">
+        <input id="admin-password" type="password" name="password" autocomplete="current-password" required>
+        <button class="password-toggle" type="button" data-toggle-password="admin-password" aria-label="Show password" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <button class="btn btn-primary auth-submit" type="submit">Sign in</button>
+      <a class="auth-link" href="/forgot-password">Forgot password?</a>
+      <p class="auth-note">Administrator accounts are provisioned by the system administrator.</p>
     </form>
 
     <form th:if="${role != 'admin'}" th:action="@{/login/farmer}" method="post">
-      <label>Full name</label>
-      <input type="text" name="name" placeholder="e.g. Musyoka Kioko" required>
-      <label>Phone number</label>
-      <input type="tel" name="phone" placeholder="07xx xxx xxx">
-      <label>Nearest market</label>
-      <select name="marketId">
-        <option th:each="m : ${markets}" th:value="${m.id}" th:text="${m.name}">Market</option>
-      </select>
-      <button class="btn btn-primary auth-submit" type="submit">Continue</button>
-      <p class="auth-note">Farmers get on-demand access to verified prices, trend history, and broadcast alerts — no more missed timeslots.</p>
+      <label for="farmer-username">Username</label>
+      <input id="farmer-username" type="text" name="username" autocomplete="username" required>
+      <label for="farmer-password">Password</label>
+      <div class="password-field">
+        <input id="farmer-password" type="password" name="password" autocomplete="current-password" required>
+        <button class="password-toggle" type="button" data-toggle-password="farmer-password" aria-label="Show password" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <button class="btn btn-primary auth-submit" type="submit">Sign in</button>
+      <a class="auth-link" href="/forgot-password">Forgot password?</a>
+      <p class="auth-note">New to MIMS? <a href="/signup">Create a farmer account</a>.</p>
     </form>
 
     <a class="auth-back" href="/">&larr; Back to the board</a>
   </div>
 </div>
+<script>
+  document.querySelectorAll("[data-toggle-password]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const input = document.getElementById(button.dataset.togglePassword);
+      const visible = input.type === "password";
+      input.type = visible ? "text" : "password";
+      button.setAttribute("aria-label", visible ? "Hide password" : "Show password");
+      button.setAttribute("aria-pressed", String(visible));
+    });
+  });
+</script>
 </body>
 </html>

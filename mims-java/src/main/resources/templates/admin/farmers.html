@@ -20,7 +20,7 @@
       <form th:action="@{/admin/farmers}" method="post">
         <div class="grid-3">
           <div><label>Full name</label><input type="text" name="name" placeholder="e.g. Nzisa Mutua" required></div>
-          <div><label>Phone number</label><input type="text" name="phone" placeholder="07xx xxx xxx"></div>
+          <div><label for="phone">Phone number</label><input id="phone" type="tel" name="phone" value="+254" autocomplete="tel"></div>
           <div><label>Nearest market</label>
             <select name="marketId">
               <option th:each="m : ${markets}" th:value="${m.id}" th:text="${m.name}">Market</option>
