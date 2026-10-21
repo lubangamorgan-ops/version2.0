@@ -1,7 +1,9 @@
 package ke.co.machakosfa.mims.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import ke.co.machakosfa.mims.config.RememberMeCookie;
 import ke.co.machakosfa.mims.model.Account;
 import ke.co.machakosfa.mims.model.Farmer;
 import ke.co.machakosfa.mims.model.Market;
@@ -10,6 +12,7 @@ import ke.co.machakosfa.mims.service.AccountService;
 import ke.co.machakosfa.mims.service.FarmerService;
 import ke.co.machakosfa.mims.service.MarketService;
 import ke.co.machakosfa.mims.service.PriceService;
+import ke.co.machakosfa.mims.service.RememberMeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.MailException;
@@ -29,23 +32,30 @@ public class HomeController {
     private final FarmerService farmerService;
     private final PriceService priceService;
     private final AccountService accountService;
+    private final RememberMeService rememberMeService;
 
     public HomeController(
             MarketService marketService,
             FarmerService farmerService,
             PriceService priceService,
-            AccountService accountService) {
+            AccountService accountService,
+            RememberMeService rememberMeService) {
         this.marketService = marketService;
         this.farmerService = farmerService;
         this.priceService = priceService;
         this.accountService = accountService;
+        this.rememberMeService = rememberMeService;
     }
 
     @GetMapping("/")
-    public String landing(Model model) {
+    public String landing(Model model, HttpServletRequest request) {
         List<PriceRecord> latest = priceService.findAll();
         model.addAttribute("latestPrices", latest.size() > 4 ? latest.subList(0, 4) : latest);
         model.addAttribute("markets", marketService.findAll());
+        String dashboard = dashboardForSession(request);
+        if (dashboard != null) {
+            return "redirect:" + dashboard;
+        }
         return "index";
     }
 
@@ -53,7 +63,12 @@ public class HomeController {
     public String loginForm(
             @RequestParam(defaultValue = "farmer") String role,
             @RequestParam(defaultValue = "false") boolean reset,
-            Model model) {
+            Model model,
+            HttpServletRequest request) {
+        String dashboard = dashboardForSession(request);
+        if (dashboard != null) {
+            return "redirect:" + dashboard;
+        }
         String selectedRole = "admin".equalsIgnoreCase(role) ? "admin" : "farmer";
         model.addAttribute("role", selectedRole);
         model.addAttribute("markets", marketService.findAll());
@@ -67,7 +82,9 @@ public class HomeController {
     public String loginAdmin(
             @RequestParam String username,
             @RequestParam String password,
+            @RequestParam(defaultValue = "false") boolean rememberMe,
             HttpServletRequest request,
+            HttpServletResponse response,
             Model model) {
         Optional<Account> account = accountService.authenticate(username, password, "ADMIN");
         if (account.isEmpty()) {
@@ -80,6 +97,7 @@ public class HomeController {
         session.setAttribute("role", "admin");
         session.setAttribute("name", account.get().getUsername());
         session.setAttribute("staffRole", "Association Administrator");
+        updateRememberMe(account.get(), rememberMe, request, response);
         return "redirect:/admin/dashboard";
     }
 
@@ -87,7 +105,9 @@ public class HomeController {
     public String loginFarmer(
             @RequestParam String username,
             @RequestParam String password,
+            @RequestParam(defaultValue = "false") boolean rememberMe,
             HttpServletRequest request,
+            HttpServletResponse response,
             Model model) {
         Optional<Account> account = accountService.authenticate(username, password, "FARMER");
         if (account.isEmpty()) {
@@ -103,6 +123,7 @@ public class HomeController {
         session.setAttribute("name", farmer.getName());
         session.setAttribute("farmerId", farmer.getId());
         session.setAttribute("marketId", farmer.getMarket().getId());
+        updateRememberMe(account.get(), rememberMe, request, response);
         return "redirect:/farmer/dashboard";
     }
 
@@ -184,9 +205,39 @@ public class HomeController {
     }
 
     @PostMapping("/logout")
-    public String logout(HttpSession session) {
+    public String logout(
+            HttpSession session, HttpServletRequest request, HttpServletResponse response) {
+        rememberMeService.revoke(RememberMeCookie.read(request));
+        RememberMeCookie.clear(response, request);
         session.invalidate();
         return "redirect:/";
+    }
+
+    private void updateRememberMe(
+            Account account,
+            boolean rememberMe,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        rememberMeService.revoke(RememberMeCookie.read(request));
+        RememberMeCookie.clear(response, request);
+        if (rememberMe) {
+            RememberMeCookie.set(response, request, rememberMeService.createToken(account));
+        }
+    }
+
+    private String dashboardForSession(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return null;
+        }
+        Object role = session.getAttribute("role");
+        if ("admin".equals(role)) {
+            return "/admin/dashboard";
+        }
+        if ("farmer".equals(role)) {
+            return "/farmer/dashboard";
+        }
+        return null;
     }
 
     private HttpSession establishSession(HttpServletRequest request) {

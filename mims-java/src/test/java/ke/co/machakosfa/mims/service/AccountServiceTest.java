@@ -5,12 +5,9 @@ import ke.co.machakosfa.mims.model.Farmer;
 import ke.co.machakosfa.mims.model.Market;
 import ke.co.machakosfa.mims.repository.AccountRepository;
 import ke.co.machakosfa.mims.repository.FarmerRepository;
-import org.junit.jupiter.api.BeforeEach;
+import ke.co.machakosfa.mims.repository.RememberMeTokenRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,28 +23,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
 
-    @Mock
-    private AccountRepository accountRepository;
-
-    @Mock
-    private FarmerRepository farmerRepository;
-
-    @Mock
-    private JavaMailSender mailSender;
-
-    private PasswordEncoder passwordEncoder;
-    private AccountService accountService;
-
-    @BeforeEach
-    void setUp() {
-        passwordEncoder = new BCryptPasswordEncoder();
-        accountService = new AccountService(
-                accountRepository, farmerRepository, passwordEncoder, mailSender,
-                "mims@example.test", "smtp.example.test", "https://mims.example.test");
-    }
+    private final AccountRepository accountRepository = mock(AccountRepository.class);
+    private final FarmerRepository farmerRepository = mock(FarmerRepository.class);
+    private final RememberMeTokenRepository rememberMeTokenRepository =
+            mock(RememberMeTokenRepository.class);
+    private final JavaMailSender mailSender = mock(JavaMailSender.class);
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final AccountService accountService = new AccountService(
+            accountRepository, farmerRepository, rememberMeTokenRepository, passwordEncoder, mailSender,
+            "mims@example.test", "smtp.example.test", "https://mims.example.test");
 
     @Test
     void registersFarmerWithNormalizedIdentityAndHashedPassword() {
@@ -183,7 +169,7 @@ class AccountServiceTest {
     @Test
     void doesNotSendResetMailWhenSmtpIsNotConfigured() {
         AccountService unconfiguredService = new AccountService(
-                accountRepository, farmerRepository, passwordEncoder, mailSender, "", "", "http://localhost:8080");
+                accountRepository, farmerRepository, rememberMeTokenRepository, passwordEncoder, mailSender, "", "", "http://localhost:8080");
 
         IllegalStateException exception = assertThrows(IllegalStateException.class,
                 () -> unconfiguredService.requestPasswordReset("morgan@example.test"));

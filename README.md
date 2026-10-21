@@ -25,7 +25,9 @@ You can also open the `mims-java` folder as a Maven project in IntelliJ IDEA, Ec
 
 The application uses a file-based H2 database by default; no separate database setup is needed. Data is stored in `mims-java/data/` and persists between restarts.
 
-While the application is running, the H2 console is available at [http://localhost:8080/h2-console](http://localhost:8080/h2-console). Use JDBC URL `jdbc:h2:file:./data/mims`, username `sa`, and a blank password.
+While the application is running, the H2 console is available at [http://localhost:8080/h2-console](http://localhost:8080/h2-console). Connect with driver `org.h2.Driver`, JDBC URL `jdbc:h2:file:./data/mims;AUTO_SERVER=TRUE`, username `sa`, and a blank password. Run the application from the `mims-java` directory so `./data/mims` resolves to `mims-java/data/mims`.
+
+The `.mv.db` file is an H2 database, not SQLite. Do not open it with a SQLite connection or point a saved connection at a previous project location; use the H2 console settings above.
 
 To switch to MySQL, uncomment the MySQL dependency in `mims-java/pom.xml`, then update the database settings in `mims-java/src/main/resources/application.properties`. Configure credentials outside source control before using the application with a non-local database.
 
@@ -38,6 +40,8 @@ Farmers can create accounts with a username, email, password, phone number, and 
 - `MIMS_ADMIN_PASSWORD` (at least 12 characters)
 
 The administrator account is created only if the configured username/email do not already exist. Changing the environment password later does not overwrite an existing account.
+
+On sign-in, select **Remember me for 30 days** to stay signed in across browser restarts. The persistent sign-in is stored as a revocable, rotating token in the application database; signing out removes it. Leave the option unchecked on shared devices.
 
 Password recovery sends a single-use link that expires after 30 minutes. Configure SMTP outside source control before enabling email delivery:
 

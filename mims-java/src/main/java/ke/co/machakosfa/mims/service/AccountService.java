@@ -5,6 +5,7 @@ import ke.co.machakosfa.mims.model.Farmer;
 import ke.co.machakosfa.mims.model.Market;
 import ke.co.machakosfa.mims.repository.AccountRepository;
 import ke.co.machakosfa.mims.repository.FarmerRepository;
+import ke.co.machakosfa.mims.repository.RememberMeTokenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +47,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final FarmerRepository farmerRepository;
+    private final RememberMeTokenRepository rememberMeTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender mailSender;
     private final String mailFrom;
@@ -55,6 +57,7 @@ public class AccountService {
     public AccountService(
             AccountRepository accountRepository,
             FarmerRepository farmerRepository,
+            RememberMeTokenRepository rememberMeTokenRepository,
             PasswordEncoder passwordEncoder,
             JavaMailSender mailSender,
             @Value("${mims.mail.from:}") String mailFrom,
@@ -62,6 +65,7 @@ public class AccountService {
             @Value("${mims.public-base-url:http://localhost:8080}") String publicBaseUrl) {
         this.accountRepository = accountRepository;
         this.farmerRepository = farmerRepository;
+        this.rememberMeTokenRepository = rememberMeTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.mailSender = mailSender;
         this.mailFrom = mailFrom;
@@ -264,6 +268,7 @@ public class AccountService {
         account.setResetTokenHash(null);
         account.setResetTokenExpiresAt(null);
         accountRepository.save(account);
+        rememberMeTokenRepository.deleteByAccountId(account.getId());
         return true;
     }
 
